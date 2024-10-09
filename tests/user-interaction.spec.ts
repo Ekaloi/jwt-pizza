@@ -211,6 +211,12 @@ test('buy pizza with login', async ({ page }) => {
         await route.fulfill({ json: loginRes });
     });
 
+    await page.route(`/api/franchise/1/store/10`, async (route) => {
+      const deleteRes = { message: 'store deleted' };
+      expect(route.request().method()).toBe('DELETE');
+      await route.fulfill({ json: deleteRes });
+  });
+
     await page.route('*/**/api/franchise', async (route) => {
        const franchiseRes = [
         {
@@ -236,24 +242,58 @@ test('buy pizza with login', async ({ page }) => {
       await route.fulfill({ json: franchiseRes });
     });
 
+    await page.goto('http://localhost:5173/');
+    await page.getByRole('link', { name: 'Login' }).click();
 
-    // await page.route('*/**/api/franchise/1', async (route) => {
-    //   const franchiseRes = [
-    //     {
-    //       id: 2,
-    //       name: 'LotaPizza',
-    //       stores: [
-    //         { id: 4, name: 'Lehi' },
-    //         { id: 5, name: 'Springville' },
-    //         { id: 6, name: 'American Fork' },
-    //       ],
-    //     },
-    //     { id: 3, name: 'PizzaCorp', stores: [{ id: 7, name: 'Spanish Fork' }] },
-    //     { id: 4, name: 'topSpot', stores: [] },
-    //   ];
-    //   expect(route.request().method()).toBe('GET');
-    //   await route.fulfill({ json: franchiseRes });
-    // });
+    await page.getByPlaceholder('Email address').click();
+    await page.getByPlaceholder('Email address').fill('a@jwt.com');
+    await page.getByPlaceholder('Email address').press('Tab');
+    await page.getByPlaceholder('Password').fill('a');
+    await page.getByRole('button', { name: 'Login' }).click();
+   
+    await page.getByRole('link', { name: 'Admin' }).click();
+    await expect(page.getByRole('heading')).toContainText("Mama Ricci's kitchen");
+
+    await page.getByRole('row', { name: 'SLC 0.008 ₿ Close' }).getByRole('button').click();
+    await page.getByRole('button', { name: 'Close' }).click();
+  });
+
+
+  test('Admin Dashboard close franchise', async ({ page }) => {
+    page.on('console', (msg) => console.log(msg.text()));
+
+    await page.route('*/**/api/auth', async (route) => {
+        const loginReq = { email: 'a@jwt.com', password: 'a' };
+        const loginRes = { user: { id: 1, name: '常用名字', email: 'a@jwt.com', roles: [{ role: 'admin' }] }, token: 'tttttt' };
+        expect(route.request().method()).toBe('PUT');
+        expect(route.request().postDataJSON()).toMatchObject(loginReq);
+        await route.fulfill({ json: loginRes });
+    });
+
+    await page.route('*/**/api/franchise', async (route) => {
+       const franchiseRes = [
+        {
+          id: 1,
+          name: 'pizzaPocket',
+          admins: [
+            {
+              id: 3,
+              name: 'pizza franchisee',
+              email: 'f@jwt.com',
+            },
+          ],
+          stores: [
+            {
+              id: 10,
+              name: 'SLC',
+              totalRevenue: 0.008,
+            },
+          ],
+        },
+      ];
+      expect(route.request().method()).toBe('GET');
+      await route.fulfill({ json: franchiseRes });
+    });
 
     await page.goto('http://localhost:5173/');
     await page.getByRole('link', { name: 'Login' }).click();
@@ -266,6 +306,9 @@ test('buy pizza with login', async ({ page }) => {
    
     await page.getByRole('link', { name: 'Admin' }).click();
     await expect(page.getByRole('heading')).toContainText("Mama Ricci's kitchen");
+
+    await page.getByRole('row', { name: 'pizzaPocket pizza franchisee' }).getByRole('button').click();
+    
   });
 
 
