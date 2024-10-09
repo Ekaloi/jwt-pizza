@@ -112,3 +112,57 @@ test('buy pizza with login', async ({ page }) => {
     await expect(page.getByText('0.008')).toBeVisible();
   }); 
 
+  test('Register', async ({ page }) => {
+    await page.route('*/**/api/auth', async (route) => {
+        const registerReq = { email: 'd@jwt.com', password: 'a' };
+        const registerRes = { user: { id: 3, name: 'Kai Chen', email: 'd@jwt.com', roles: [{ role: 'diner' }] }, token: 'abcdef' };
+        expect(route.request().method()).toBe('POST');
+        expect(route.request().postDataJSON()).toMatchObject(registerReq);
+        await route.fulfill({ json: registerRes });
+      });
+
+    await page.goto('/register');
+
+    await page.getByPlaceholder('Full name').click();
+    await page.getByPlaceholder('Full name').fill('Kai Chen');
+
+    await page.getByPlaceholder('Email address').click();
+    await page.getByPlaceholder('Email address').fill('d@jwt.com');
+    await page.getByPlaceholder('Email address').press('Tab');
+    await page.getByPlaceholder('Password').fill('a');
+    await page.getByRole('button', { name: 'Register' }).click();
+  });
+
+
+  test('Franchise Dashboard', async ({ page }) => {
+    page.on('console', (msg) => console.log(msg.text()));
+
+    await page.route('*/**/api/auth', async (route) => {
+        const loginReq = { email: 'd@jwt.com', password: 'a' };
+        const loginRes = { user: { id: 4, name: 'pizza franchisee', email: 'd@jwt.com', roles: [{ role: 'franchisee' }] }, token: 'abcdef' };
+        expect(route.request().method()).toBe('PUT');
+        expect(route.request().postDataJSON()).toMatchObject(loginReq);
+        await route.fulfill({ json: loginRes });
+    });
+
+    await page.route('*/**/api/franchise/4', async (route) => {
+        const franchiseRes = [{ id: 4, name: 'pizzaPocket', admins: [{ id: 4, name: 'pizza franchisee', email: 'd@jwt.com' }], stores: [{ id: 4, name: 'SLC', totalRevenue: 0 }] }];
+        expect(route.request().method()).toBe('GET');
+        await route.fulfill({ json: franchiseRes });
+      });
+
+    await page.goto('/franchise-dashboard');
+
+    await await page.click('text=login');
+
+    await page.getByPlaceholder('Email address').click();
+    await page.getByPlaceholder('Email address').fill('d@jwt.com');
+    await page.getByPlaceholder('Email address').press('Tab');
+    await page.getByPlaceholder('Password').fill('a');
+    await page.getByRole('button', { name: 'Login' }).click();
+   
+    await page.goto('/franchise-dashboard');
+  });
+
+
+  
