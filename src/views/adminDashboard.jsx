@@ -52,6 +52,7 @@ export default function AdminDashboard({ user }) {
                         </tr>
                       </thead>
                       {franchises.map((franchise, findex) => {
+                        console.log("Franchise! ",franchise);
                         return (
                           <tbody key={findex} className='divide-y divide-gray-200'>
                             <tr className='border-neutral-500 border-t-2'>
@@ -62,12 +63,14 @@ export default function AdminDashboard({ user }) {
                               <td className='px-6 py-4 whitespace-nowrap text-end text-sm font-medium'>
                                 <button
                                   type='button'
+                                  data-findex={`findex-${findex}-close-button`}
                                   className='px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400  hover:border-orange-800 hover:text-orange-800'
                                   onClick={() => closeFranchise(franchise)}
                                 >
                                   <TrashIcon />
                                   Close
                                 </button>
+                                {console.log('F-index',findex)}
                               </td>
                             </tr>
 
