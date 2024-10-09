@@ -31,6 +31,7 @@ export default function AdminDashboard({ user }) {
 
   let response = <NotFound />;
   if (Role.isRole(user, Role.Admin)) {
+    console.log("Franchises", franchises);
     response = (
       <View title="Mama Ricci's kitchen">
         <div className='text-start py-8 px-4 sm:px-6 lg:px-8'>
@@ -52,7 +53,7 @@ export default function AdminDashboard({ user }) {
                         </tr>
                       </thead>
                       {franchises.map((franchise, findex) => {
-                        console.log("Franchise! ",franchise);
+                        console.log("Franchise! ",franchise, findex);
                         return (
                           <tbody key={findex} className='divide-y divide-gray-200'>
                             <tr className='border-neutral-500 border-t-2'>
