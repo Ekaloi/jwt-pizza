@@ -309,7 +309,7 @@ test('buy pizza with login', async ({ page }) => {
     await expect(page.getByRole('heading')).toContainText("Mama Ricci's kitchen");
 
     await page.getByRole('row', { name: 'pizzaPocket pizza franchisee' }).getByRole('button').click();
-    
+    await page.getByRole('button', { name: 'Close' }).click();
   });
 
 
