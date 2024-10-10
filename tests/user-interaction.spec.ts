@@ -255,6 +255,10 @@ test('home page', async ({ page }) => {
             },
           },
         ],
+        config: {
+          factory: "https://pizza-factory.cs329.click",
+          db: "127.0.0.1",
+        },
       };
       expect(route.request().method()).toBe('GET');
       await route.fulfill({ json: docsRes });
