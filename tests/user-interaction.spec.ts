@@ -189,7 +189,7 @@ test('buy pizza with login', async ({ page }) => {
 
     await page.goto('/franchise-dashboard');
 
-    await await page.click('text=login');
+    await page.getByRole('link', { name: 'login', exact: true }).click();
 
     await page.getByPlaceholder('Email address').click();
     await page.getByPlaceholder('Email address').fill('d@jwt.com');
@@ -352,7 +352,8 @@ test('buy pizza with login', async ({ page }) => {
     await page.getByRole('button', { name: 'Login' }).click();
    
     await page.goto('/diner-dashboard');
-
+    expect(await page.getByText('How have you lived this long')).toBeVisible();
+    expect(await page.getByText('diner', { exact: true })).toBeVisible();
   });
 
 
@@ -394,7 +395,7 @@ test('buy pizza with login', async ({ page }) => {
     await page.getByRole('button', { name: 'Login' }).click();
    
     await page.goto('/diner-dashboard');
-
+    expect(await page.getByText('Franchisee on undefined')).toBeVisible();
   });
 
 
