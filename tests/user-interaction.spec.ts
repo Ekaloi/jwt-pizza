@@ -48,7 +48,10 @@ test('buy pizza with login', async ({ page }) => {
       await page.getByPlaceholder('Password').fill('a');
       await page.getByRole('button', { name: 'Login' }).click();
 
-      await page.goto('/history');
+      await page.getByRole('link', { name: 'History' }).click();
+      expect(await page.getByText('Mama Rucci, my my')).toBeVisible();
+      await page.getByRole('link', { name: 'home' }).click();
+      expect(await page.getByText('The web\'s best pizza', { exact: true })).toBeVisible();
       await page.goto('/docs');
       await page.goto('/about');
       await page.goto('/logout');
