@@ -267,7 +267,7 @@ test('home page', async ({ page }) => {
   await page.goto('/');
   expect(await page.title()).toBe('JWT Pizza');
 
-  await page.goto('/docs');
+  await page.goto('/docs', { waitUntil: 'networkidle' });
   expect(await page.getByText('JWT Pizza API')).toBeVisible();
   expect(await page.locator('label').first()).toBeVisible();
 });
