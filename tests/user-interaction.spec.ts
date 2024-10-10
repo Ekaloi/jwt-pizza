@@ -2,7 +2,6 @@ import { test, expect } from 'playwright-test-coverage';
 
 test('home page', async ({ page }) => {
   await page.route('*/**/api/docs', async (route) => {
-    if (route.request().method() === 'PUT') {
       const docsRes = {
         version: "20240926.195142",
         endpoints: [
@@ -261,11 +260,9 @@ test('home page', async ({ page }) => {
           db: "127.0.0.1",
         },
       };
-      expect(route.request().method()).toBe('Get');
+      expect(route.request().method()).toBe('GET');
       await route.fulfill({ json: docsRes });
-    } else{
-      route.continue;
-    }});
+    });
 
   await page.goto('/');
   expect(await page.title()).toBe('JWT Pizza');
