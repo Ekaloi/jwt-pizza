@@ -50,6 +50,7 @@ test('buy pizza with login', async ({ page }) => {
 
       await page.goto('/history');
       await page.goto('/docs');
+      await page.goto('/about');
       await page.goto('/logout');
      
   });
@@ -319,6 +320,48 @@ test('buy pizza with login', async ({ page }) => {
     await page.route('*/**/api/auth', async (route) => {
         const loginReq = { email: 'a@jwt.com', password: 'a' };
         const loginRes = { user: { id: 1, name: '常用名字', email: 'a@jwt.com', roles: [{ role: 'diner' }] }, token: 'tttttt' };
+        expect(route.request().method()).toBe('PUT');
+        expect(route.request().postDataJSON()).toMatchObject(loginReq);
+        await route.fulfill({ json: loginRes });
+    });
+
+    await page.route('*/**/api/franchise', async (route) => {
+      const franchiseRes = [
+        {
+          id: 2,
+          name: 'LotaPizza',
+          stores: [
+            { id: 4, name: 'Lehi' },
+            { id: 5, name: 'Springville' },
+            { id: 6, name: 'American Fork' },
+          ],
+        },
+        { id: 3, name: 'PizzaCorp', stores: [{ id: 7, name: 'Spanish Fork' }] },
+        { id: 4, name: 'topSpot', stores: [] },
+      ];
+      expect(route.request().method()).toBe('GET');
+      await route.fulfill({ json: franchiseRes });
+    });
+
+    await page.goto('/login');
+
+    await page.getByPlaceholder('Email address').click();
+    await page.getByPlaceholder('Email address').fill('a@jwt.com');
+    await page.getByPlaceholder('Email address').press('Tab');
+    await page.getByPlaceholder('Password').fill('a');
+    await page.getByRole('button', { name: 'Login' }).click();
+   
+    await page.goto('/diner-dashboard');
+
+  });
+
+
+  test('Diner Dashboard as franchisee', async ({ page }) => {
+    page.on('console', (msg) => console.log(msg.text()));
+
+    await page.route('*/**/api/auth', async (route) => {
+        const loginReq = { email: 'a@jwt.com', password: 'a' };
+        const loginRes = { user: { id: 1, name: '常用名字', email: 'a@jwt.com', roles: [{ role: 'franchisee' }] }, token: 'tttttt' };
         expect(route.request().method()).toBe('PUT');
         expect(route.request().postDataJSON()).toMatchObject(loginReq);
         await route.fulfill({ json: loginRes });
